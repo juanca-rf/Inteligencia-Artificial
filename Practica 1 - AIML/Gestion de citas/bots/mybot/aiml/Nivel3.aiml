@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml>
+
+<!-- 
+    Extrae intervalos consecutivos, los elementos de un interval se separan con "_" y los propios intervalos se separa con " "
+    Ej: 09 10 11 12 15 17 18 19     ===>       09_10_11_12 15 17_18_19
+-->
+<category>
+    <pattern>INTERVALOS *</pattern>
+    <template>
+        <think>
+            <set var="horaslibres"><star/></set>
+            <set var="aux"><srai>TOP <get var="horaslibres"/></srai></set>
+            <set var="intervalo"><get var="aux"/></set>
+            <set var="horaslibres"><srai>REMAIN <get var="horaslibres"/></srai></set> <!-- Extraemos la primera-->
+            <set var="intervalos"></set>
+            <set var="size"><srai>COUNT <get var="horaslibres"/></srai></set>
+
+            <condition var="size">
+                <li value="0"><set var="intervalos"><get var="intervalos"/> <get var="intervalo"/></set></li>
+                <li>
+                    <set var="equal"><srai>COMPARE <map name="cerodemas"><map name="successor"><get var="aux"/></map></map> WITH <srai>TOP <get var="horaslibres"/></srai></srai></set>
+                    <condition var="equal">
+                        <li value="YES">
+                            <set var="aux"><srai>TOP <get var="horaslibres"/></srai></set>
+                            <set var="horaslibres"><srai>REMAIN <get var="horaslibres"/></srai></set>
+                            <set var="intervalo"><srai>CODE <get var="intervalo"/> <get var="aux"/></srai></set>
+                        </li>
+                        <li value="NO">
+                            <set var="intervalos"><get var="intervalos"/> <get var="intervalo"/></set>
+                            <set var="aux"><srai>TOP <get var="horaslibres"/></srai></set>
+                            <set var="intervalo"><get var="aux"/></set>
+                            <set var="horaslibres"><srai>REMAIN <get var="horaslibres"/></srai></set>
+                        </li>
+                    </condition>
+                    <set var="size"><srai>COUNT <get var="horaslibres"/></srai></set>
+                    <loop/>
+                </li>
+            </condition>
+        </think>
+        <get var="intervalos"/>
+    </template>
+</category>
+
+<!-- 
+    Interpreta numeros separados por "_" y los trasforma a lenguaje alfabetico
+    Ej: 12_13_14 ====> desde las DOCE hasta las CATORCE; 12 ===> a las 12
+-->
+<category>
+    <pattern>LEER INTERVALO *</pattern>
+    <template> 
+        <think>
+            <set var="intervalo"><srai>DECODE <star/></srai></set>
+            <set var="size"><srai>COUNT <get var="intervalo"/></srai></set> 
+        </think>
+        <condition var="size">
+            <li value="1">
+                a las <map name="numtoletter"><map name="equivalenciatarde"><srai>BACK <get var="intervalo"/></srai></map></map>
+            </li>
+            <li>
+               desde las <map name="numtoletter"><map name="equivalenciatarde"><srai>TOP <get var="intervalo"/></srai></map></map> hasta las <map name="numtoletter"><map name="equivalenciatarde"><srai>BACK <get var="intervalo"/></srai></map></map>
+            </li>
+        </condition>
+    </template>
+</category>
+
+<!-- 
+    Interpreta la cadena que devuelve la primera regla "INTERVALOS" y la trasforma desde sistema numerico a alfabetico
+    Ej: "09_10_11_12 14 16_17_18_19"     ====>  "desde las 9 hasta las 12, a las 14, desde las 16 hasta las 19"
+-->
+<category>
+    <pattern>LEER INTERVALOS *</pattern>
+    <template>
+        <think>
+            <set var="actual"><srai>TOP <star/></srai></set>
+            <set var="sizeactual"><srai>COUNT <get var="actual"/></srai></set> 
+            <set var="intervalos"><srai>REMAIN <star/></srai></set>
+            <set var="size"><srai>COUNT <get var="intervalos"/></srai></set> 
+            <set var="salida"></set>
+
+            <condition var="size">
+                <li value="0">
+                    <set var="salida"><get var="salida"/>, <srai>LEER INTERVALO <get var="actual"/></srai></set>
+                </li>
+                <li>
+                    <set var="salida"><get var="salida"/>, <srai>LEER INTERVALO <get var="actual"/></srai></set>
+                    <set var="actual"><srai>TOP <get var="intervalos"/></srai></set>
+                    <set var="sizeactual"><srai>COUNT <get var="actual"/></srai></set> 
+                    <set var="intervalos"><srai>REMAIN <get var="intervalos"/></srai></set>
+                    <set var="size"><srai>COUNT <get var="intervalos"/></srai></set> 
+                    <loop/>
+                </li>
+            </condition>
+        </think>
+        <get var="salida"/>
+    </template>
+</category>
+
+<!-- 
+    Una sola regla para usar todas las anteriores
+    Ej: 09 10 11 12 15 17 18 19     ===>       , desde las nueve hasta las doce, a las tres, desde las cinco hasta las siete
+-->
+<category>
+    <pattern>INTERPRETAR INTERVALOS *</pattern>
+    <template><srai>LEER INTERVALOS <srai>INTERVALOS <star/></srai></srai></template>
+</category>
+
+<!-- Devuelve el ultimo elemento-->
+<category>
+    <pattern>BACK * *</pattern>
+    <template><srai>BACK <star index="2"/></srai></template>
+</category>
+
+<!-- Si es el ultimo elemento devuelve el mismo-->
+<category>
+    <pattern>BACK *</pattern>
+    <template><star/></template>
+</category>
+
+<!-- A partir de aqui las reglas son del nivel 2 pero mejoradas-->
+
+<category>
+    <pattern>(DIME) (QUE) (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) (EL) [PROXIMO SIGUIENTE] <set>weekday_es</set></pattern>
+    <template>
+        <think>
+            <set var="hlibresm"><srai>GET <srai>DATE ON <star/></srai> M NO</srai></set>
+            <set var="hlibrest"><srai>GET <srai>DATE ON <star/></srai> T NO</srai></set>
+        </think>
+        <condition var="hlibresm"> 
+            <li><value>NO</value>Este dia esta ocupado</li>
+            <li>
+                Revisando veo que podemos tener por la manyana huecos<srai>INTERPRETAR INTERVALOS <get var="hlibresm"/></srai> y por la tarde<srai>INTERPRETAR INTERVALOS <get var="hlibrest"/></srai>
+            </li>
+        </condition>
+    </template>
+
+</category>
+
+<category>
+    <pattern>(DIME) (QUE)  (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) <set>offsetday</set></pattern>
+    <template>
+        <think> 
+            <set var="offset"><star/></set> 
+            <condition var="offset">
+                <li value="HOY">
+                    <set var="hlibresm"><srai>GET <srai>DATE</srai> M NO</srai></set>
+                    <set var="hlibrest"><srai>GET <srai>DATE</srai> T NO</srai></set>
+                </li>
+                <li value="MANYANA">
+                    <set var="hlibresm"><srai>GET <srai>DATE IN 1 DAYS</srai> M NO</srai></set>
+                    <set var="hlibrest"><srai>GET <srai>DATE IN 1 DAYS</srai> T NO</srai></set>
+                </li>
+                <li value="PASADO MANYANA">
+                    <set var="hlibresm"><srai>GET <srai>DATE IN 2 DAYS</srai> M NO</srai></set>
+                    <set var="hlibrest"><srai>GET <srai>DATE IN 2 DAYS</srai> T NO</srai></set>
+                </li>
+            </condition>
+        </think>
+        <condition var="hlibresm"> 
+            <li><value>NO</value>Este dia esta ocupado</li>
+            <li>
+                Veo que para <get var="offset"/> podemos tener por la manyana huecos<srai>INTERPRETAR INTERVALOS <get var="hlibresm"/></srai> y por la tarde<srai>INTERPRETAR INTERVALOS <get var="hlibrest"/></srai>
+            </li>
+        </condition>
+    </template>
+</category>
+
+<category>
+    <pattern>(QUE) (DIME) (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) <set>offsetday</set> POR LA <set>dayphase</set></pattern>
+    <template>
+        <think>
+            <set var="salida"></set>
+            <set var="offset"><star index="2"/></set> 
+            <condition var="offset">
+                <li value="MANYANA">m <set var="fase">m</set> </li>
+                <li value="TARDE">t<set var="fase">t</set></li>
+            </condition>
+            <set var="offset2"><star/></set>
+            
+            <condition var="offset2">
+                <li value="HOY"><set var="hlibres"><srai>GET <srai>DATE</srai> <get var="fase"/> NO</srai></set></li>
+                <li value="MANYANA"><set var="hlibres"><srai>GET <srai>DATE IN 1 DAYS</srai> <get var="fase"/> NO</srai></set></li>
+                <li value="PASADO MANYANA"><set var="hlibres"><srai>GET <srai>DATE IN 2 DAYS</srai> <get var="fase"/> NO</srai></set></li>
+            </condition>
+        </think>
+        <condition var="hlibres">
+            <li value="NO">Lo siento, pero ese dia esta al completo ocupado.</li>
+            <li value="ocupada">Lo siento, pero ese dia por la <get var="offset"/> esta ocupada.</li>
+            <li>Vale... perfecto, para <get var="offset2"/> por la <get var="offset"/> tenemos algo libre<srai>INTERPRETAR INTERVALOS <get var="hlibres"/></srai></li>
+        </condition>      
+    </template>
+</category>
+
+<category>
+    <pattern>(DIME) (QUE) (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) (EL) (DIA) <set>number</set> (de) <set>month_es</set> (del) <set>number</set> A PARTIR DE LAS <set>numeroenletra</set> DE LA <set>dayphase</set></pattern>
+    <template>
+        <think>
+            <set var="hora"><star index="5"/></set>
+            <condition var="hora">
+                <li value="TARDE"><set var="hora"><map name="horastarde"><map name="lettertonum"><star index="4"/></map></map>:00</set></li>
+                <li value="MANYANA"><set var="hora"><map name="lettertonum"><star index="4"/></map>:00</set></li>
+            </condition>    
+        </think>
+        <srai>HORAS LIBRES <star index="1"/> <star index="2"/> <star index="3"/> A PARTIR DE LAS <get var="hora"/></srai>
+    </template>
+</category>
+
+<category>
+    <pattern>(DIME) (QUE) (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) (EL) (DIA) <set>number</set> (de) <set>month_es</set> (del) <set>number</set> A PARTIR DE LAS <set>horasdisponibles</set></pattern>
+    <template>
+        <think>
+            <set name="fecha"><srai>CODE <map name="cerodemas"><star/></map> <map name="nmes"><star index="2"/></map> <star index="3"/></srai></set>
+            <set var="contador"><srai>ORDINAL <star index="4"/></srai></set> <!-- Iniciamos el contador a la hora elegida-->
+            <set var="list"> <srai>LIST OF DAY <get name="fecha"/></srai> </set>
+            <set var="sublist"><srai>SUBLIST FROM <get var="contador"/> TO 19 OF <get var="list"/></srai></set>
+            <set var="libre"><srai>FINDITEM LIBRE IN <get var="sublist"/></srai></set>
+            <set var="listalibres"></set>
+
+            <condition var="libre">
+                <li value="0">NO</li>
+                <li>
+                    <condition var="contador">
+                        <li><value>21</value></li> <!-- Condicion de parada no hace nada-->
+                        <li> 
+                            <set var="iterador"><map name="cerodemas"><get var="contador"/></map></set>
+                            <set var="libre"><srai>IS BUSY DAY <get name="fecha"/> AT <get var="iterador"/>:00</srai></set>
+                            
+                            <condition var="libre"> 
+                                <li value="FALSE">
+                                    <set var="listalibres">
+                                        <srai>code <get var="listalibres"/> <get var="iterador"/></srai>
+                                    </set>
+                                </li>
+                            </condition>
+                            
+                            <!-- actualizar contador a siguiente-->
+                            <set var="contador">
+                                <map name="successor"><get var="contador"/></map> 
+                            </set>
+                            <!-- vuelta a condition-->
+                            <loop/> 
+                        </li>
+                    </condition>
+                </li>
+            </condition>
+            
+            <set var="listalibres"><srai>DECODE <get var="listalibres"/></srai></set>
+        </think>
+        Perfecto para el dia <get name="fecha"/> a partir de las <star index="4"/> podemos tener huecos<srai>INTERPRETAR INTERVALOS <get var="listalibres"/></srai>
+    </template>
+</category>
+
+<category>
+    <pattern>(DIME) (QUE) (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) (EL) [PROXIMO SIGUIENTE] <set>weekday_es</set> A PARTIR DE LAS <set>horasdisponibles</set></pattern>
+    <template>
+        <srai>HORAS TIENES LIBRES <srai>DATE ON <star/></srai> A PARTIR DE LAS <star index="2"/></srai>
+    </template>
+</category>
+
+<category>
+    <pattern>(DIME) (QUE) (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) (EL) [PROXIMO SIGUIENTE] <set>weekday_es</set> A PARTIR DE LAS <set>numeroenletra</set> DE LA <set>dayphase</set></pattern>
+    <template>
+        <think>
+            <set var="hora"><star index="3"/></set>
+            <condition var="hora">
+                <li value="TARDE"><set var="hora"><map name="horastarde"><map name="lettertonum"><star index="2"/></map></map>:00</set></li>
+                <li value="MANYANA"><set var="hora"><map name="lettertonum"><star index="2"/></map>:00</set></li>
+            </condition>    
+        </think>
+        <srai>HORAS TIENES LIBRES <srai>DATE ON <star/></srai> A PARTIR DE LAS <get var="hora"/></srai>
+    </template>
+</category>
+
+<category>
+    <pattern>(DIME) (QUE) (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) <set>offsetday</set> A PARTIR DE LAS <set>horasdisponibles</set></pattern>
+    <template>
+        <think>
+            <set var="offset"><star/></set>
+        </think>
+
+        <condition var="offset">
+            <li value="HOY"><srai>HORAS TIENES LIBRES <srai>DATE</srai> A PARTIR DE LAS <star index="2"/></srai></li>
+            <li value="MANYANA"><srai>HORAS TIENES LIBRES <srai>DATE IN 1 DAYS</srai> A PARTIR DE LAS <star index="2"/></srai></li>
+            <li value="PASADO MANYANA"><srai>HORAS TIENES LIBRES <srai>DATE IN 2 DAYS</srai> A PARTIR DE LAS <star index="2"/></srai></li>
+        </condition>
+
+    </template>
+</category>
+
+<category>
+    <pattern>(DIME) (QUE) (LAS) HORAS (TIENES) LIBRES (TIENES) (PARA) <set>offsetday</set> A PARTIR DE LAS <set>numeroenletra</set> DE LA <set>dayphase</set></pattern>
+    <template>
+        <think>
+            <set var="hora"><star index="3"/></set>
+            <condition var="hora">
+                <li value="TARDE"><set var="hora"><map name="horastarde"><map name="lettertonum"><star index="2"/></map></map>:00</set></li>
+                <li value="MANYANA"><set var="hora"><map name="lettertonum"><star index="2"/></map>:00</set></li>
+            </condition> 
+        </think>
+
+        <srai>HORAS TIENES LIBRES <star/> A PARTIR DE LAS <get var="hora"/></srai>
+    </template>
+</category>
+
+</aiml>

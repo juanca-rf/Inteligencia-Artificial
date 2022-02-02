@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml>
+
+<category>
+    <pattern>LIBRE [PROXIMO SIGUIENTE] <set>weekday_es</set></pattern>
+    <template>
+        <srai>LIBRE <srai>DATE ON <star/></srai></srai>
+    </template>
+</category>
+
+<category>
+    <pattern>LIBRE <set>offsetday</set></pattern>
+    <template>
+        <think> <set var="offset"><star/></set> </think>
+        <condition var="offset">
+            <li value="HOY"><srai>LIBRE <srai>DATE</srai></srai></li>
+            <li value="MANYANA"><srai>LIBRE <srai>DATE IN 1 DAYS</srai></srai></li>
+            <li value="PASADO MANYANA"><srai>LIBRE <srai>DATE IN 2 DAYS</srai></srai></li>
+        </condition>
+    </template>
+</category>
+
+<category>
+    <pattern>HORAS LIBRES [PROXIMO SIGUIENTE] <set>weekday_es</set></pattern>
+    <template>
+        <think><set var="hlibres"><srai>GET <srai>DATE ON <star/></srai> A</srai></set></think>
+        <condition var="hlibres">
+            <li><value>NO</value>Este dia esta ocupado</li>
+            <li>Hay por <get var="hlibres"/></li>
+        </condition>
+    </template>
+</category>
+
+<category>
+    <pattern>HORAS LIBRES <set>offsetday</set></pattern>
+    <template>
+        <think> <set var="offset"><star/></set> </think>
+        <condition var="offset">
+            <li value="HOY">Hay por <srai>GET <srai>DATE</srai> A</srai></li>
+            <li value="MANYANA">Hay por <srai>GET <srai>DATE IN 1 DAYS</srai> A</srai></li>
+            <li value="PASADO MANYANA">Hay por <srai>GET <srai>DATE IN 2 DAYS</srai> A</srai></li>
+        </condition>
+    </template>
+</category>
+
+<category>
+    <pattern>HORAS LIBRES <set>offsetday</set> POR LA <set>dayphase</set></pattern>
+    <template>
+        <think>
+            <set var="offset"><star index="2"/></set> 
+            <condition var="offset">
+                <li value="MANYANA">m <set var="fase">m</set> </li>
+                <li value="TARDE">t<set var="fase">t</set></li>
+            </condition>
+            <set var="offset"><star/></set> <!-- reutilizo variable-->
+        </think>
+
+        <condition var="offset">
+            <li value="HOY">Hoy hay a las <srai>GET <srai>DATE</srai> <get var="fase"/></srai></li>
+            <li value="MANYANA">Manyana hay a las <srai>GET <srai>DATE IN 1 DAYS</srai> <get var="fase"/></srai></li>
+            <li value="PASADO MANYANA">Pasado manyana hay a las <srai>GET <srai>DATE IN 2 DAYS</srai> <get var="fase"/></srai></li>
+        </condition>
+    </template>
+</category>
+
+<category>
+    <pattern>HORAS LIBRES (PARA) (EL) (DIA) <set>number</set> (de) <set>month_es</set> (del) <set>number</set> A PARTIR DE LAS <set>horasdisponibles</set></pattern>
+    <template>
+        <think>
+            <set name="fecha"><srai>CODE <map name="cerodemas"><star/></map> <map name="nmes"><star index="2"/></map> <star index="3"/></srai></set>
+            <set var="contador"><srai>ORDINAL <star index="4"/></srai></set> <!-- Iniciamos el contador a la hora elegida-->
+            <set var="list"> <srai>LIST OF DAY <get name="fecha"/></srai> </set>
+            <set var="sublist"><srai>SUBLIST FROM <get var="contador"/> TO 19 OF <get var="list"/></srai></set>
+            <set var="libre"><srai>FINDITEM LIBRE IN <get var="sublist"/></srai></set>
+            <set var="listalibres"></set>
+
+            <condition var="libre">
+                <li value="0">NO</li>
+                <li>
+                    <condition var="contador">
+                        <li><value>20</value></li> <!-- Condicion de parada no hace nada-->
+                        <li> 
+                            <set var="iterador"><map name="cerodemas"><get var="contador"/></map></set>
+                            <set var="libre"><srai>IS BUSY DAY <get name="fecha"/> AT <get var="iterador"/>:00</srai></set>
+                            <condition var="libre"> 
+                                <li value="FALSE">
+                                    <set var="listalibres">
+                                        <srai>code <get var="listalibres"/> <get var="iterador"/>:00</srai>
+                                    </set>
+                                </li>
+                            </condition>
+
+                            <!-- actualizar contador a siguiente-->
+                            <set var="contador">
+                                <map name="successor"><get var="contador"/></map> 
+                            </set>
+                            <!-- vuelta a condition-->
+                            <loop/> 
+                        </li>
+                    </condition>
+                </li>
+            </condition>
+
+            <set var="listalibres"><srai>DECODE <get var="listalibres"/></srai></set>
+        </think>
+        
+        <get var="listalibres"/>
+    </template>
+</category>
+
+<category>
+    <pattern>HORAS LIBRES (EL) [PROXIMO SIGUIENTE] <set>weekday_es</set> A PARTIR DE LAS <set>horasdisponibles</set></pattern>
+    <template>
+        <srai>HORAS LIBRES <srai>DATE ON <star/></srai> A PARTIR DE LAS <star index="2"/></srai>
+    </template>
+</category>
+
+<category>
+    <pattern>HORAS LIBRES <set>offsetday</set> A PARTIR DE LAS <set>horasdisponibles</set></pattern>
+    <template>
+        <think>
+            <set var="offset"><star/></set>
+        </think>
+
+        <condition var="offset">
+            <li value="HOY"><srai>HORAS LIBRES <srai>DATE</srai> A PARTIR DE LAS <star index="2"/></srai></li>
+            <li value="MANYANA"><srai>HORAS LIBRES <srai>DATE IN 1 DAYS</srai> A PARTIR DE LAS <star index="2"/></srai></li>
+            <li value="PASADO MANYANA"><srai>HORAS LIBRES <srai>DATE IN 2 DAYS</srai> A PARTIR DE LAS <star index="2"/></srai></li>
+        </condition>
+
+    </template>
+</category>
+
+</aiml>

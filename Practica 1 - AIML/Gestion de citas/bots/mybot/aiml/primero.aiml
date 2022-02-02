@@ -1,0 +1,286 @@
+<?xml version="1.0"
+encoding="UTF-8"?>
+<aiml version="2.0">
+
+<!-- Primera regla -->
+<!-- 
+<category>
+<pattern>Hola ^</pattern>
+<template>Hola, que tal?</template>
+</category>
+-->
+
+<category>
+    <pattern>* que tal tu</pattern>
+    <template>Estoy genial!!! Me encanta conocer gente nueva.</template>
+</category>
+
+<category>
+    <pattern>como te llamas</pattern>
+    <template>Mi nombre es HALfonso</template>
+</category>
+
+<category>
+    <pattern>Estudio * en *</pattern>
+    <template>En <star index="2"/>, yo también estudio <star/></template>
+</category>
+
+<!-- set get-->
+<category>
+    <pattern>^ me llamo *</pattern>
+    <template>
+        <set name="nombre"><star index="2"/></set>
+        <get name="nombre"/> es un bonito nombre
+    </template>
+</category>
+
+<category>
+    <pattern>cual es mi nombre</pattern>
+    <template>Tu nombre es <get name="nombre"/></template>
+</category>
+
+<category>
+    <pattern>Cual es tu edad</pattern>
+    <template>Tengo <bot name="age"/> anios</template>
+</category>
+
+
+<category>
+    <pattern>mi color favorito es el *</pattern>
+    <template>
+        <think><set var="color"><star/></set></think>
+        El <get var="color"/> no me gusta nada!
+    </template>
+</category>
+
+<!-- SRAIs-->
+
+<category>
+    <pattern>* mi nombre</pattern>
+    <template><srai>CUAL ES MI NOMBRE</srai></template>
+</category>
+
+<category>
+    <pattern>^ como me llamo</pattern>
+    <template><srai>CUAL ES MI NOMBRE</srai></template>
+</category>
+
+<!-- saludos habituales-->
+
+
+<category>
+    <pattern>Buenas ^</pattern>
+    <template><srai>HOLA</srai></template>
+</category>
+
+<category>
+    <pattern>Buenos ^</pattern>
+    <template><srai>HOLA</srai></template>
+</category>
+
+
+
+<category>
+    <pattern>Es <set>color</set> un color</pattern>
+    <template>Si, <star/> es un color </template>
+</category>
+
+<category>
+    <pattern> Es * un color</pattern>
+    <template>No, <star/> no es un color</template>
+</category>
+
+
+<category>
+    <pattern>Cual es la capital de <set>pais</set></pattern>
+    <template>
+        La capital de <star/> es <map name="capital"><star/></map>.
+    </template>
+</category>
+
+<!-- si no se sabe ir al apartado leanr-->
+
+<!-- Tags -->
+<category>
+    <pattern>^ cafe ^</pattern>
+    <template>Te gusta el cafe</template>
+</category>
+
+<category>
+    <pattern>Si</pattern>
+        <that> TE GUSTA EL CAFE </that>
+    <template>Lo prefieres solo o con leche</template>
+</category>
+
+
+<category>
+    <pattern>^ pelis ^</pattern>
+    <template>te gustan las peliculas de comedia</template>
+</category>
+
+<category>
+    <pattern>si</pattern>
+    <that>te gustan las peliculas de comedia</that>
+    <template>genial! a mi tambien</template>
+</category>
+
+<category>
+    <pattern>no</pattern>
+    <that>te gustan las peliculas de comedia</that>
+    <template>vaya, pues a mi si</template>
+</category>
+
+<!-- topics-->
+
+<category>
+    <pattern>^ hablemos de pelis</pattern>
+    <template>genial! <think><set name="topic">movies</set></think> </template>
+</category>
+
+<topic name = "movies">
+
+    <category>
+        <pattern>*</pattern>
+        <template>ver peliculas abre la mente</template>
+    </category>
+
+    <category>
+        <pattern>^ gustan * de comedia</pattern>
+        <template>a mi tambien me gustan las de comedia!</template>
+    </category>
+
+    <category>
+        <pattern>no me gustan * de comedia</pattern>
+        <template>vaya, pues a mi si que me gustan</template>
+    </category>
+    
+</topic>
+
+<category>
+    <pattern>^ hablemos de cafe</pattern>
+    <template>genial! <think><set name="topic">cafe</set></think> </template>
+</category>
+
+<topic name = "cafe">
+
+    <category>
+        <pattern>*</pattern>
+        <template>tomar cafe abre la mente</template>
+    </category>
+
+    <category>
+        <pattern>^ gusta * con leche</pattern>
+        <template>a mi tambien me gusta el cafe con leche</template>
+    </category>
+
+    <category>
+        <pattern>no me gustan * amargos</pattern>
+        <template>vaya, pues a mi me gustan los cafes amargos</template>
+    </category>
+
+    <category>
+        <pattern>^ cansado * de cafe</pattern>
+        <template>okay... <think><set name="topic">unknown</set></think> </template>
+    </category>
+    
+</topic>
+
+<!-- RADOMS LISTAS-->
+<category>
+    <pattern>hola ^</pattern>
+    <template>
+        <random>
+            <li> Hola! </li>
+            <li> Buenas! Qué tal? </li>
+            <li> Muy buenos dias!!!</li>
+            <li> Feliz mañana compi</li>
+            <li> mal empezamos....</li>
+        </random>
+    </template>
+</category>
+
+<!-- SWITCH-->
+<category>
+    <pattern>CUAL ES MI NOMBRE</pattern>
+    <template>
+        <condition name="nombre">
+            <li value="unknown"> Aun no me has dicho tu nombre, chato</li>
+            <li>Tu nombre es <get name="nombre"/></li>
+        </condition>
+    </template>
+</category>
+
+<!-- CICLOS-->
+<category>
+    <pattern>cuenta hasta <set>number</set></pattern>
+    <template>
+
+        <think>
+            <set var="contador">1</set>
+            <set var="salida">1</set>
+        </think>
+        <condition var="contador">
+            <li><value><star/></value><get var="salida"/></li> <!-- condicion de finalizacion del bucle var contador == star/ return var salida -->
+            <li>
+                <think>
+                    <set var="contador">
+                    <map name="successor"><get var="contador"/></map> <!-- actualizar contador a siguiente-->
+                    </set>
+                    <set var="salida"><get var="salida"/> <get var="contador"/></set>
+                </think>
+                <loop/> <!-- vuelta a condition-->
+            </li>
+        </condition>
+
+    </template>
+</category>
+
+<!-- learn y learnf-->
+<category>
+    <pattern>Cual es la capital de *</pattern>
+    <template>
+        No se cual es la capital de <star/>
+    </template>
+</category>
+
+<category>
+    <pattern>la capital de * es *</pattern>
+    <template>
+        <think>
+            <set var="cap"><srai>CUAL ES LA CAPITAL DE <star/></srai></set>
+        </think>
+        <condition var="cap">
+            <li value="NO LO SE">
+            <learn>
+                <category>
+                    <pattern>CUAL ES LA CAPITAL DE <eval><star/></eval></pattern>
+                    <template>
+                        La capital de <eval><star/></eval> es <eval><star index="2"/></eval>
+                    </template>
+                </category>
+            </learn>
+            Recordare que la capital de <star/> es <star index="2"/>.
+            </li>
+            <li>
+                Ya lo sabia.
+            </li>
+        </condition>
+    </template>
+</category>
+
+<category>
+    <pattern></pattern>
+    <template></template>
+</category>
+
+<category>
+    <pattern></pattern>
+    <template></template>
+</category>
+
+<category>
+    <pattern></pattern>
+    <template></template>
+</category>
+
+</aiml>

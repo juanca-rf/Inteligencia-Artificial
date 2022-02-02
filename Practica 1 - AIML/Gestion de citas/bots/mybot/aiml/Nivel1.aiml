@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml>
+
+<category>
+    <pattern>(LIBRE) (EL) <set>number</set> (DE) <set>month_es</set> (DEL) <set>number</set></pattern>
+    <template>
+        <think>
+            <set var="list"> <srai>LIST OF DAY <map name="cerodemas"><star/></map>_<map name="nmes"><star index="2"/></map>_<star index="3"/></srai> </set>
+            <set var="sublist"><srai>SUBLIST FROM 7 TO 19 OF <get var="list"/></srai></set>
+            <set var="libre"><srai>FINDITEM LIBRE IN <get var="sublist"/></srai></set>
+        </think>
+        <condition var="libre">
+            <li value="0">Este dia esta ocupado</li>
+            <li value="1">Este dia tiene hueco libre</li>
+        </condition>
+    </template>
+</category>
+
+<category>
+    <pattern>HORASLIBRES <set>number</set> (DE) <set>month_es</set> (DEL) <set>number</set></pattern> 
+    <template><srai>GET <star index="1"/> <star index="2"/> <star index="3"/> M</srai> <srai>GET <star index="1"/> <star index="2"/> <star index="3"/> T</srai></template>   
+</category>
+
+<category>
+    <pattern>HLMANYANA <set>number</set> (DE) <set>month_es</set> (DEL) <set>number</set></pattern> 
+    <template><srai>GET <star index="1"/> <star index="2"/> <star index="3"/> M</srai></template>   
+</category>
+
+<category>
+    <pattern>HLTARDE <set>number</set> (DE) <set>month_es</set> (DEL) <set>number</set></pattern> 
+    <template><srai>GET <star index="1"/> <star index="2"/> <star index="3"/> T</srai></template>   
+</category>
+
+<category>
+    <pattern>[DAME QUISIERA QUIERO PONME DEME] UNA CITA (PARA) EL <set>number</set> DE <set>month_es</set> DEL <set>number</set></pattern>
+    <template>
+        <think>
+            <set name="libresm"><srai>GET <star/> <star index="2"/> <star index="3"/> m</srai></set>
+            <set name="librest"><srai>GET <star/> <star index="2"/> <star index="3"/> t</srai></set>
+        </think>
+        <condition name="libresm">
+            <li value="NO">Lo siento, ese dia esta al completo. ¿Te gustaria otro dia?<think><set name="topic">RESPUESTAS</set></think></li>
+            <li>
+                <think><set name="topic">HORAS</set></think>
+                Para ese dia tenemos horas libres por la mañana <get name="libresm"/> y por la tarde <get name="librest"/>  ¿Quieres alguna hora en concreto? 
+            </li>
+        </condition>
+    </template>
+</category>
+
+<topic name = "RESPUESTAS">
+
+    <category>
+        <pattern>*</pattern>
+        <template>Perdon, no te he entendido. ¿Quieres cita para otro dia?</template>
+    </category>
+
+    <category>
+        <pattern>SI</pattern>
+        <template>Genial! dime que quieres para otro dia</template>
+    </category>
+
+    <category>
+        <pattern>NO</pattern>
+        <template>Siento no haberte ayudado, vuelve a probar cuando quieras.</template>
+    </category>
+    
+</topic>
+
+<topic name="HORAS">
+    <category>
+        <pattern>(SI) A LAS <set>horasdisponibles</set></pattern>
+        <template>
+            <think><set var="correcto"><srai>IS BUSY DAY <get name="fecha"/> AT <star/></srai></set></think>
+            <condition var="correcto">
+                <li value="FALSE">
+                    <srai>MARK NOLIBRE AT <star/> ON <get name="fecha"/></srai> Perfecto, tienes una cita para el <get name="fecha"/> a las <star/>
+                </li>
+                <li>Disculpa pero esa hora estaba ocupada. Recuerda que hay horas libres por la mañana <get name="libresm"/> y por la tarde <get name="librest"/></li>
+            </condition>
+        </template>
+    </category>
+
+    <category>
+        <pattern>ME DA IGUAL</pattern>
+        <template>
+            <think><set var="primerahora"><srai>TOP <get name="libresm"/></srai></set></think>
+            <condition var="primerahora">
+                <li value="ocupada">
+                    <think>
+                        <set var="primerahora"><srai>TOP <get name="librest"/></srai></set>
+                        <srai>MARK NOLIBRE AT <get var="primerahora"/> ON <get name="fecha"/></srai>
+                    </think>
+                    Genial! te he asignado la cita para las <get var="primerahora"/>
+                </li>
+                <li>
+                    <think><srai>MARK NOLIBRE AT <get var="primerahora"/> ON <get name="fecha"/></srai></think>
+                    Genial! te he asignado la cita para las <get var="primerahora"/>
+                </li>
+            </condition>
+        </template>
+    </category>
+
+    <category>
+        <pattern>*</pattern>
+        <template>Perdon, no te he entendido. Recuerda que las horas son <get name="libresm"/> <get name="librest"/></template>
+    </category>
+
+</topic>
+
+<!-- Conseguir horas libres de un dia por franjas a:ambas m:manyana t:tarde ADICIONAL si se añade un NO al final no se escribira el :00 de cada hora  -->
+<!-- Ejemplo: GET 2 FEBRERO 21 A-->
+<category>
+    <pattern>GET <set>number</set> <set>month_es</set> <set>number</set> * ^</pattern>
+    <template>
+        <think>
+            <set name="fecha"><srai>code <map name="cerodemas"><star/></map> <map name="nmes"><star index="2"/></map> <star index="3"/></srai></set>
+            <set var="franja"><star index="4"/></set>
+            <set var="contador">7</set>
+            <set var="list"> <srai>LIST OF DAY <get name="fecha"/></srai> </set>
+            <set var="sublist"><srai>SUBLIST FROM 7 TO 19 OF <get var="list"/></srai></set>
+            <set var="libre"><srai>FINDITEM LIBRE IN <get var="sublist"/></srai></set>
+            <set var="listamanyana"></set>
+            <set var="listarde"></set>
+            <set var="horacompleta"><star index="5"/></set>
+            
+        </think>    
+            <condition var="libre">
+                <li><value>0</value>NO</li>
+                <li>
+                    <think>
+                        <condition var="contador">
+                            <li><value>20</value></li> <!-- Condicion de parada no hace nada-->
+                            <li> 
+                                <set var="iterador"><map name="cerodemas"><map name="successor"><get var="contador"/></map></map></set>
+                                <set var="libre"><srai>IS BUSY DAY <get name="fecha"/> AT <get var="iterador"/>:00</srai></set>
+                                <condition var="libre"> 
+                                    <li value="FALSE">
+                                        <set var="momentodia"><map name="momento"><get var="iterador"/></map></set>
+                                        <set var="iterador">
+                                            <condition var="horacompleta">
+                                                <li value="NO"><get var="iterador"/></li>
+                                                <li><get var="iterador"/>:00</li>
+                                            </condition>
+                                        </set>
+                                        <condition var="momentodia">
+                                            <li value="manyana">
+                                                <set var="listamanyana">
+                                                    <srai>code <get var="listamanyana"/> <get var="iterador"/></srai>
+                                                </set>
+                                            </li>
+                                            <li value="tarde">
+                                                <set var="listarde">
+                                                    <srai>code <get var="listarde"/> <get var="iterador"/></srai>
+                                                </set>
+                                            </li>
+                                        </condition>
+                                    </li>
+                                </condition>
+                                
+                                
+
+                                <!-- actualizar contador a siguiente-->
+                                <set var="contador">
+                                    <map name="successor"><get var="contador"/></map> 
+                                </set>
+                                <!-- vuelta a condition-->
+                                <loop/> 
+                            </li>
+                        </condition>
+
+                        <!-- Quitar separadores listas-->
+                        <set var="sizem"><srai>COUNT <get var="listamanyana"/></srai></set>
+                        <set var="sizet"><srai>COUNT <get var="listarde"/></srai></set>
+                        <set var="listamanyana"><srai>DECODE <get var="listamanyana"/></srai></set>
+                        <set var="listarde"><srai>DECODE <get var="listarde"/></srai></set>
+                    </think>
+                    <!-- Devolver salida en funcion de la franja elegida-->
+                    <condition var="franja">
+                        <li value="a">
+                            la mañana <condition var="sizem">
+                                                <li><value>0</value>ocupada</li>
+                                                <li><get var="listamanyana"/></li>
+                                            </condition> y por la tarde <condition var="sizet">
+                                                                            <li><value>0</value>ocupada</li>
+                                                                            <li><get var="listarde"/></li>
+                                                                        </condition>
+                        </li>
+                        <li value="m">
+                            <condition var="sizem">
+                                <li><value>0</value>ocupada</li>
+                                <li><get var="listamanyana"/></li>
+                            </condition>
+                        </li>
+                        <li value="t">
+                            <condition var="sizet">
+                                <li><value>0</value>ocupada</li>
+                                <li><get var="listarde"/></li>
+                            </condition>
+                        </li>
+                    </condition>
+                </li>
+            </condition>  
+    </template>
+</category>
+
+<category>
+    <pattern>*</pattern>
+    <template>Algo ha ido mal pero quiero que sepas que estoy a tu disposicion, las citas van desde las 08:00 hasta las 20:00. Ademas recuerda que el formato de fecha seria DD de MMMMMMM del AA y hora HH:00</template>
+</category>
+
+</aiml>

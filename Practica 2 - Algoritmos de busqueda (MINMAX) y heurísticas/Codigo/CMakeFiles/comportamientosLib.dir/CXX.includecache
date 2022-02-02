@@ -1,0 +1,64 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/aldeano.cpp
+../Comportamientos_Jugador/aldeano.hpp
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/aldeano.hpp
+motorlib/util.h
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/motorlib/util.h
+
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/aldeano.hpp
+chrono
+-
+time.h
+-
+thread
+-
+comportamientos/comportamiento.hpp
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/comportamientos/comportamiento.hpp
+
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/jugador.cpp
+../Comportamientos_Jugador/jugador.hpp
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/jugador.hpp
+motorlib/util.h
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/motorlib/util.h
+iostream
+-
+cmath
+-
+set
+-
+stack
+-
+queue
+-
+list
+-
+tgmath.h
+-
+
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/jugador.hpp
+comportamientos/comportamiento.hpp
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/Comportamientos_Jugador/comportamientos/comportamiento.hpp
+list
+-
+vector
+-
+
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/src/comportamientos/comportamiento.cpp
+comportamientos/comportamiento.hpp
+/mnt/c/Users/juanc/Desktop/Segundo/IA/Practicas/Practica 2/JuanCarlosRuizFernandezB3Practica2/practica2_linux - copia/src/comportamientos/comportamientos/comportamiento.hpp
+
+include/comportamientos/comportamiento.hpp
+vector
+-
+
+include/motorlib/util.h
+cstdlib
+-
+

@@ -1,0 +1,5 @@
+brian:castanios
+valentina:verdes
+linqui:oscuros
+jorge:azules
+ana:marrones

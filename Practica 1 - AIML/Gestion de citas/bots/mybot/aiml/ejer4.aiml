@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+<category>
+    <pattern>^ color de pelo de <set>compi</set></pattern>
+    <template>
+        El color de pelo de <star index="2"/> es <map name="pelo"><star index="2"/></map>.
+    </template>
+</category>
+
+<category>
+    <pattern>^ color de pelo de *</pattern>
+    <template>
+        No se quien es <star index="2"/> ni si tiene pelo, pues tu verás.
+    </template>
+</category>
+
+<category>
+    <pattern>^ color de ojos de <set>compi</set></pattern>
+    <template>
+        El color de ojos de <star index="2"/> es <map name="ojos"><star index="2"/></map>.
+    </template>
+</category>
+
+<category>
+    <pattern>^ color de ojos de *</pattern>
+    <template>
+        No se quien es <star index="2"/> ni si tiene ojos, pues tu verás.
+    </template>
+</category>
+
+
+<category>
+    <pattern></pattern>
+    <template></template>
+</category>
+
+<category>
+    <pattern></pattern>
+    <template></template>
+</category>
+
+</aiml>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml>
+
+<!-- 1-->
+<category>
+    <pattern>^ [TEMPORADA ESTACION] (DEL ANIO) (ES) (estamos)</pattern>
+    <template>Estamos en <srai>SEASON</srai></template>
+</category>
+
+<!-- 2-->
+<category>
+    <pattern>^ [FASE MOMENTO] DEL DIA [ESTAMOS ES]</pattern>
+    <template>Ahora estamos en la <srai>DAY PHASE</srai></template>
+</category>
+
+<!-- 3-->
+<category>
+    <pattern>^ dia (de la semana) [ES SERA] *</pattern>
+    <template> 
+       <think> <set var="offset"><star index="2"/></set> </think>
+        <condition var="offset">
+            <li value="HOY"><star index="2"/> es  <srai>DAY</srai></li>
+            <li value="MANYANA"><star index="2"/> es  <srai>TOMORROW</srai></li>
+            <li value="PASADO MANYANA"><star index="2"/> es  <srai>DAY AFTER TOMORROW</srai></li>
+        </condition>   
+    </template>
+</category>
+
+<!-- 4-->
+<category>
+    <pattern>^ FECHA SERA DENTRO DE UNA SEMANA </pattern>
+    <template>Manyana, dentro de una semana, sera <srai>DATE IN 8 DAYS</srai></template>
+</category>
+
+<category>
+    <pattern>^ FECHA (EN UNA) (PROXIMA) (SIGUIENTE) SEMANA </pattern>
+    <template><srai>FECHA SERA DENTRO DE UNA SEMANA</srai></template>
+</category>
+
+<!-- 5-->
+<category>
+    <pattern>^ [FECHA DIA] SERA (EL) [PROXIMO SIGUIENTE] <set>weekday_es</set></pattern>
+    <template>El proximo <star index="2"/> será <srai>DATE ON <star index="2"/></srai></template>
+</category>
+
+</aiml>
